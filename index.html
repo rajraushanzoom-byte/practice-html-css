@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HTML &amp; CSS Practice Exam</title>
+<style>
+  :root{
+    --bg:#10131a;
+    --panel:#171b24;
+    --panel-2:#1d222d;
+    --border:#2a3140;
+    --text:#e7e9ee;
+    --muted:#8891a3;
+    --accent:#d7a34e;
+    --info:#6ea8ff;
+    --good:#48b57e;
+    --good-soft:#173124;
+    --bad:#e2635f;
+    --bad-soft:#331c1c;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased;}
+  button{font-family:var(--sans);}
+  ::selection{background:#3a4358;}
+
+  header.top{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(var(--panel), var(--panel) 92%, transparent);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px 10px;
+  }
+  .top-row{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .title{font-size:18px; font-weight:700; letter-spacing:0.2px;}
+  .title span{color:var(--accent);}
+  .mode-badge{font-size:12px; color:var(--muted); border:1px solid var(--border); padding:4px 10px; border-radius:100px; white-space:nowrap;}
+  .mode-badge b{color:var(--good); font-weight:600;}
+  .score-badge{font-size:12px; color:var(--text); border:1px solid var(--border); background:var(--panel-2); padding:4px 10px; border-radius:100px; white-space:nowrap;}
+  .toprow-actions{display:flex; gap:8px; align-items:center;}
+  .btn{border:1px solid var(--border); background:var(--panel-2); color:var(--text); padding:7px 12px; border-radius:6px; font-size:13px; cursor:pointer; transition:border-color .12s, background .12s;}
+  .btn:hover{border-color:#42506b;}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#241a06; font-weight:600;}
+  .btn.primary:hover{filter:brightness(1.06);}
+  .btn.ghost{background:transparent;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+
+  .navstrip{display:flex; gap:6px; overflow-x:auto; padding:10px 0 2px; margin-top:10px; scrollbar-width:thin;}
+  .navstrip::-webkit-scrollbar{height:6px;}
+  .navstrip::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+  .navdot{flex:0 0 auto; width:34px; height:30px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--muted); font-family:var(--mono); font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .navdot.attempted{color:var(--accent); border-color:#5a4a26;}
+  .navdot.passed{color:var(--good); border-color:#2f5a44; background:var(--good-soft);}
+  .navdot.failed{color:var(--bad); border-color:#5a3232; background:var(--bad-soft);}
+  .navdot.current{outline:2px solid var(--info); outline-offset:1px;}
+
+  main{display:grid; grid-template-columns: minmax(280px, 38%) 1fr; min-height:calc(100vh - 108px);}
+  @media (max-width:880px){ main{grid-template-columns:1fr;} }
+  .panel{padding:20px 22px;}
+  .qpanel{border-right:1px solid var(--border); overflow-y:auto;}
+  .eyebrow{font-size:12px; color:var(--muted); margin-bottom:6px;}
+  h1.qtitle{font-size:20px; margin:0 0 12px; line-height:1.3;}
+  h1.qtitle .num{color:var(--accent); font-family:var(--mono); font-size:16px; margin-right:8px;}
+  .desc{color:#cfd3dc; line-height:1.6; font-size:14.5px; margin-bottom:18px;}
+  .section-label{font-size:12px; color:var(--muted); font-weight:600; margin:18px 0 8px;}
+  ul.tests{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;}
+  ul.tests li{display:flex; gap:9px; align-items:flex-start; font-size:13.5px; color:#cfd3dc; border:1px solid var(--border); background:var(--panel-2); padding:9px 11px; border-radius:7px;}
+  .mark{font-family:var(--mono); flex:0 0 auto; width:16px; text-align:center; color:var(--muted);}
+  ul.tests li.pass .mark{color:var(--good);}
+  ul.tests li.fail .mark{color:var(--bad);}
+  .qnav{display:flex; justify-content:space-between; gap:8px; margin-top:22px;}
+
+  .edpanel{display:flex; flex-direction:column;}
+  .filebar{display:flex; align-items:center; border-bottom:1px solid var(--border); padding:0 4px;}
+  .filetab{padding:10px 16px; font-size:13px; color:var(--text); font-family:var(--mono); border-bottom:2px solid var(--accent);}
+  .filebar .attemptedFlag{margin-left:auto; padding-right:14px; font-size:11px; color:var(--muted); font-family:var(--mono);}
+  .editorwrap{flex:1 1 320px; display:flex; flex-direction:column; min-height:280px; position:relative;}
+  textarea.code{flex:1; width:100%; resize:none; border:0; outline:0; background:var(--bg); color:var(--text); font-family:var(--mono); font-size:13px; line-height:1.55; padding:14px 16px; tab-size:2;}
+  .bottomtabs{display:flex; border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
+  .bottomtabs .tab{flex:1; text-align:center; padding:10px 16px; font-size:13px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; font-family:var(--mono);}
+  .bottomtabs .tab.active{color:var(--text); border-bottom-color:var(--accent);}
+  .outputwrap{height:260px; display:flex; flex-direction:column;}
+  iframe.preview{flex:1; width:100%; border:0; background:#fff;}
+  .console{flex:1; overflow-y:auto; background:#0b0d12; font-family:var(--mono); font-size:12.5px; padding:12px 14px; color:#a9b1c3;}
+  .console .line{margin-bottom:4px; white-space:pre-wrap;}
+  .console .ok{color:var(--good);}
+  .console .no{color:var(--bad);}
+  .console .prompt{color:var(--info);}
+  .actionbar{display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--border); flex-wrap:wrap;}
+  .solution{margin-top:10px; border:1px dashed var(--border); border-radius:8px; padding:12px 14px; background:var(--panel-2); font-family:var(--mono); font-size:12.5px; white-space:pre-wrap; color:#b7bccb; display:none; max-height:320px; overflow-y:auto;}
+  .solution.show{display:block;}
+
+  .overlay{position:fixed; inset:0; background:rgba(8,10,14,.72); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .overlay.show{display:flex;}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:12px; max-width:640px; width:100%; max-height:82vh; overflow-y:auto; padding:26px 28px;}
+  .card h2{margin:0 0 6px; font-size:20px;}
+  .bigscore{font-family:var(--mono); font-size:38px; color:var(--accent); margin:14px 0 4px;}
+  .card .subtle{color:var(--muted); font-size:13px; margin-bottom:18px;}
+  .breakdown{display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-bottom:20px;}
+  .breakdown div{font-family:var(--mono); font-size:11px; text-align:center; padding:6px 0; border-radius:5px; border:1px solid var(--border); color:var(--muted);}
+  .breakdown div.p{color:var(--good); border-color:#2f5a44; background:var(--good-soft);}
+  .breakdown div.f{color:var(--bad); border-color:#5a3232; background:var(--bad-soft);}
+  .card .actions{display:flex; gap:10px; justify-content:flex-end;}
+  .grading-msg{color:var(--muted); font-size:13px; text-align:center; padding:30px 0;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-row">
+    <div class="title">HTML &amp; CSS <span>Practice Exam</span></div>
+    <div class="toprow-actions">
+      <span class="mode-badge"><b>●</b> Practice mode — no timer</span>
+      <span class="score-badge" id="scoreBadge">Solved 0 / 32</span>
+      <button class="btn" id="restartBtn">Restart</button>
+      <button class="btn primary" id="submitBtn">Submit Test</button>
+    </div>
+  </div>
+  <div class="navstrip" id="navstrip"></div>
+</header>
+
+<main>
+  <section class="panel qpanel">
+    <div class="eyebrow" id="qEyebrow">Question 1 of 32</div>
+    <h1 class="qtitle"><span class="num" id="qNum">Q2</span><span id="qTitle">Title</span></h1>
+    <div class="desc" id="qDesc"></div>
+
+    <div class="section-label">Test cases</div>
+    <ul class="tests" id="testList"></ul>
+
+    <div class="solution" id="solutionBox"></div>
+
+    <div class="qnav">
+      <button class="btn" id="prevBtn">← Previous</button>
+      <button class="btn ghost" id="solutionBtn">Show solution</button>
+      <button class="btn" id="nextBtn">Next →</button>
+    </div>
+  </section>
+
+  <section class="panel edpanel" style="padding:0;">
+    <div class="filebar">
+      <div class="filetab" id="fileTab">index.html</div>
+      <div class="attemptedFlag" id="attemptedFlag"></div>
+    </div>
+    <div class="editorwrap">
+      <textarea class="code" id="codeEditor" spellcheck="false"></textarea>
+    </div>
+    <div class="bottomtabs">
+      <div class="tab active" data-view="preview">Preview</div>
+      <div class="tab" data-view="console">Console</div>
+    </div>
+    <div class="outputwrap">
+      <iframe class="preview" id="previewFrame" title="live preview" sandbox="allow-same-origin"></iframe>
+      <div class="console" id="consoleView" style="display:none;"></div>
+    </div>
+    <div class="actionbar">
+      <button class="btn primary" id="runBtn">Run tests</button>
+      <button class="btn ghost" id="resetBtn">Reset starter code</button>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="card" id="overlayCard"></div>
+</div>
+
+<script>
+(function(){
+
+/* ============================= helpers ============================= */
+const $  = (d,s)=>d.querySelector(s);
+const $$ = (d,s)=>Array.from(d.querySelectorAll(s));
+const style = (n,p)=> n ? getComputedStyle(n)[p] : '';
+const approx = (a,b,tol=2)=> Math.abs(a-b) <= tol;
+
+function isColorish(computed, named){
+  const probe = document.createElement('div');
+  probe.style.color = named;
+  document.body.appendChild(probe);
+  const want = getComputedStyle(probe).color;
+  probe.remove();
+  return computed === want;
+}
+
+function renderFrame(code, width){
+  return new Promise(resolve=>{
+    const f = document.createElement('iframe');
+    f.style.cssText = `position:absolute;left:-9999px;top:0;width:${width||1000}px;height:800px;border:0;`;
+    f.setAttribute('aria-hidden','true');
+    document.body.appendChild(f);
+    f.addEventListener('load', ()=>resolve(f), {once:true});
+    f.srcdoc = code;
+  });
+}
+
+/* ========================= question dataset ========================= */
+/* `code` is the exact starter file the student edits (HTML + CSS together,
+   just like the sheet). `solution` is the complete reference file. */
+const Q = [];
+
+Q.push({id:2, title:"Picture Perfect",
+desc:`You're a photographer building an online gallery. Display an image centered on the screen. If the image doesn't load, visitors should still see a text description.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q2 - Picture Perfect</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #fafafa;
+  }
+</style>
+</head>
+<body>
+  <!-- Write your code here -->
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q2 - Picture Perfect</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #fafafa;
+  }
+</style>
+</head>
+<body>
+  <img src="cat.jpg" alt="Cute cat picture" width="300">
+</body>
+</html>`,
+tests:[
+  {desc:"Image element is present", fn:d=>!!$(d,'img')},
+  {desc:"Image has non-empty alt text", fn:d=>{const i=$(d,'img'); return !!i && !!i.getAttribute('alt') && i.getAttribute('alt').trim().length>0;}},
+  {desc:"Image sits inside the centered layout", fn:d=> style(d.body,'display')==='flex' && !!$(d,'img')}
+]});
+
+Q.push({id:3, title:"Stylish Words",
+desc:`You're designing a magazine. Some words need bold emphasis, and others should be italicized for softer impact.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q3 - Stylish Words</title>
+</head>
+<body>
+  <p>
+    <!-- Write your text here -->
+  </p>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q3 - Stylish Words</title>
+</head>
+<body>
+  <p>
+    This is <b>bold</b> and this is <i>italic</i>.
+  </p>
+</body>
+</html>`,
+tests:[
+  {desc:"At least one bold word", fn:d=>!!$(d,'b')||!!$(d,'strong')},
+  {desc:"At least one italic word", fn:d=>!!$(d,'i')||!!$(d,'em')},
+  {desc:"Both sit inside one paragraph", fn:d=>{const p=$(d,'p'); return !!p && !!p.querySelector('b,strong') && !!p.querySelector('i,em');}}
+]});
+
+Q.push({id:4, title:"Grocery List",
+desc:`You're creating a shopping list. Fruits should appear as a bullet list, and instructions should appear as a numbered list.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q4 - Grocery List</title>
+</head>
+<body>
+  <!-- Write your code here -->
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q4 - Grocery List</title>
+</head>
+<body>
+  <ul>
+    <li>Apples</li>
+    <li>Bananas</li>
+  </ul>
+  <ol>
+    <li>Buy fruits</li>
+    <li>Wash before eating</li>
+  </ol>
+</body>
+</html>`,
+tests:[
+  {desc:"Fruits shown in an unordered list", fn:d=>{const u=$(d,'ul'); return !!u && u.querySelectorAll('li').length>=1;}},
+  {desc:"Steps shown in an ordered list", fn:d=>{const o=$(d,'ol'); return !!o && o.querySelectorAll('li').length>=1;}}
+]});
+
+Q.push({id:5, title:"People Table",
+desc:`You're asked to display user details (Name, Age, City) in a table format.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q5 - People Table</title>
+</head>
+<body>
+  <!-- Write your code here -->
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q5 - People Table</title>
+</head>
+<body>
+  <table border="1">
+    <tr>
+      <th>Name</th>
+      <th>Age</th>
+      <th>City</th>
+    </tr>
+    <tr>
+      <td>John</td>
+      <td>25</td>
+      <td>Delhi</td>
+    </tr>
+  </table>
+</body>
+</html>`,
+tests:[
+  {desc:"Table has a header row", fn:d=>{const t=$(d,'table'); return !!t && t.querySelectorAll('th').length>=1;}},
+  {desc:"Table has at least one data row", fn:d=>{const t=$(d,'table'); return !!t && t.querySelectorAll('tr').length>=2;}},
+  {desc:"Columns include Name, Age, City", fn:d=>{const ths=$$(d,'th').map(x=>x.textContent.trim().toLowerCase()); return ['name','age','city'].every(k=>ths.includes(k));}}
+]});
+
+Q.push({id:6, title:"Identity Form",
+desc:`Your client wants a simple form to collect a person's name and gender, with a submit button at the end.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q6 - Identity Form</title>
+</head>
+<body>
+  <!-- Write your code here -->
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q6 - Identity Form</title>
+</head>
+<body>
+  <form>
+    <label>Name:</label>
+    <input type="text" name="name"><br><br>
+
+    <label>Gender:</label>
+    <input type="radio" name="gender" value="male"> Male
+    <input type="radio" name="gender" value="female"> Female<br><br>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>`,
+tests:[
+  {desc:"Text input for name present", fn:d=>!!$(d,'input[type="text"]')},
+  {desc:"Two radio buttons for gender", fn:d=>$$(d,'input[type="radio"]').length>=2},
+  {desc:"Submit button present", fn:d=>!!$(d,'button, input[type="submit"]')}
+]});
+
+Q.push({id:7, title:"Country Picker",
+desc:`You're building a travel website signup form. Users must select their country from a dropdown. Support only India, USA, Japan.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q7 - Country Picker</title>
+</head>
+<body>
+  <!-- Write your code here -->
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q7 - Country Picker</title>
+</head>
+<body>
+  <select>
+    <option>India</option>
+    <option>USA</option>
+    <option>Japan</option>
+  </select>
+</body>
+</html>`,
+tests:[
+  {desc:"Dropdown menu present", fn:d=>!!$(d,'select')},
+  {desc:"Three options: India, USA, Japan", fn:d=>{const o=$$(d,'select option').map(x=>x.textContent.trim()); return ['India','USA','Japan'].every(c=>o.includes(c));}},
+  {desc:"Only one country selectable", fn:d=>!!$(d,'select') && !$(d,'select[multiple]')}
+]});
+
+Q.push({id:8, title:"Blog Layout",
+desc:`You're creating a blog page with a header (blog title), an article (post), and a footer (copyright text), using semantic tags.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q8 - Blog Layout</title>
+</head>
+<body>
+  <!-- Write your code here -->
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q8 - Blog Layout</title>
+</head>
+<body>
+  <header><h1>My Blog</h1></header>
+  <article>
+    <h2>First Post</h2>
+    <p>This is my blog post.</p>
+  </article>
+  <footer>© 2025 My Blog</footer>
+</body>
+</html>`,
+tests:[
+  {desc:"Header tag present", fn:d=>!!$(d,'header')},
+  {desc:"Article tag present", fn:d=>!!$(d,'article')},
+  {desc:"Footer tag present", fn:d=>!!$(d,'footer')}
+]});
+
+Q.push({id:9, title:"Div vs Section",
+desc:`Explain the difference between <div> (generic container) and <section> (semantic block) with an example of each.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q9 - Div vs Section</title>
+</head>
+<body>
+  <!-- Write your code here -->
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q9 - Div vs Section</title>
+</head>
+<body>
+  <section>
+    <h2>About Us</h2>
+    <p>This is semantic content.</p>
+  </section>
+  <div style="background: lightgray;">Just a container</div>
+</body>
+</html>`,
+tests:[
+  {desc:"Section contains meaningful content", fn:d=>{const s=$(d,'section'); return !!s && s.textContent.trim().length>0;}},
+  {desc:"Div is used as a container", fn:d=>!!$(d,'div')}
+]});
+
+Q.push({id:10, title:"Blue Announcement",
+desc:`Create an announcement paragraph styled in blue text, with font size 20px.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q10 - Blue Announcement</title>
+</head>
+<body>
+  <!-- Write your code here -->
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q10 - Blue Announcement</title>
+</head>
+<body>
+  <p style="color: blue; font-size: 20px;">
+    This is an important announcement!
+  </p>
+</body>
+</html>`,
+tests:[
+  {desc:"Text color is blue", fn:d=>{const p=$(d,'p'); return !!p && isColorish(style(p,'color'),'blue');}},
+  {desc:"Font size is 20px", fn:d=>{const p=$(d,'p'); return !!p && style(p,'fontSize')==='20px';}}
+]});
+
+Q.push({id:11, title:"External Stylesheet",
+desc:`You're creating a professional website. Instead of inline styles, connect an external stylesheet that changes the background color of the page. (In this simulator there's no real second file, so just add a <style> block that does the same job as style.css would.)`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q11 - External Stylesheet</title>
+<!-- Add your CSS here (imagine it lives in style.css) -->
+</head>
+<body>
+  <p>Hello World</p>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q11 - External Stylesheet</title>
+<style>
+  /* style.css */
+  body {
+    background-color: lightyellow;
+  }
+</style>
+</head>
+<body>
+  <p>Hello World</p>
+</body>
+</html>`,
+tests:[
+  {desc:"Page background color changes from the default", fn:d=>{const c=style(d.body,'backgroundColor'); return !!c && c!=='rgba(0, 0, 0, 0)' && c!=='transparent';}},
+  {desc:"A background rule is defined", fn:(d,ctx)=>/background/.test(ctx.code)}
+]});
+
+Q.push({id:12, title:"Centered Title",
+desc:`Build a landing page where the main heading must always be centered horizontally.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q12 - Centered Title</title>
+<style>
+  /* Write CSS here */
+</style>
+</head>
+<body>
+  <h1>Welcome!</h1>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q12 - Centered Title</title>
+<style>
+  h1 {
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <h1>Welcome!</h1>
+</body>
+</html>`,
+tests:[
+  {desc:"Heading is horizontally centered", fn:d=>{const h=$(d,'h1'); return !!h && style(h,'textAlign')==='center';}},
+  {desc:"Rule is written so it works at any screen size", fn:(d,ctx)=>/text-align/.test(ctx.code)}
+]});
+
+Q.push({id:13, title:"The Box Model",
+desc:`Design a profile card. Apply padding inside the box, a border around it, and a margin outside it — the CSS box model.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q13 - Box Model</title>
+<style>
+  div {
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <div>Profile Card</div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q13 - Box Model</title>
+<style>
+  div {
+    padding: 20px;
+    border: 5px solid black;
+    margin: 15px;
+  }
+</style>
+</head>
+<body>
+  <div>Profile Card</div>
+</body>
+</html>`,
+tests:[
+  {desc:"Box has padding inside", fn:d=>{const b=$(d,'div'); return !!b && parseFloat(style(b,'paddingTop'))>0;}},
+  {desc:"Box has a visible border", fn:d=>{const b=$(d,'div'); return !!b && style(b,'borderTopStyle')!=='none' && style(b,'borderTopWidth')!=='0px';}},
+  {desc:"Box has margin outside", fn:d=>{const b=$(d,'div'); return !!b && parseFloat(style(b,'marginTop'))>0;}}
+]});
+
+Q.push({id:14, title:"Consistent Box Size",
+desc:`Build a button container that must always stay 200px wide, even with padding applied. Use box-sizing to keep the width consistent.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q14 - Box Sizing</title>
+<style>
+  div {
+    width: 200px;
+    padding: 20px;
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <div>Button</div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q14 - Box Sizing</title>
+<style>
+  div {
+    width: 200px;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 2px solid #444;
+  }
+</style>
+</head>
+<body>
+  <div>Button</div>
+</body>
+</html>`,
+tests:[
+  {desc:"Total rendered width stays 200px", fn:d=>{const b=$(d,'div'); return !!b && approx(b.getBoundingClientRect().width,200,1);}},
+  {desc:"box-sizing includes padding in the box", fn:d=>{const b=$(d,'div'); return !!b && style(b,'boxSizing')==='border-box';}}
+]});
+
+Q.push({id:15, title:"Modern Card",
+desc:`Design a modern "card" UI element with a border, padding, margin, rounded corners, and shadow — like on e-commerce sites.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q15 - Modern Card</title>
+<style>
+  .card {
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <div class="card">Product Information</div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q15 - Modern Card</title>
+<style>
+  .card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 6px gray;
+  }
+</style>
+</head>
+<body>
+  <div class="card">Product Information</div>
+</body>
+</html>`,
+tests:[
+  {desc:"Card has border and padding", fn:d=>{const c=$(d,'.card'); return !!c && style(c,'borderTopStyle')!=='none' && parseFloat(style(c,'paddingTop'))>0;}},
+  {desc:"Card has margin", fn:d=>{const c=$(d,'.card'); return !!c && parseFloat(style(c,'marginTop'))>0;}},
+  {desc:"Card has shadow and rounded corners", fn:d=>{const c=$(d,'.card'); return !!c && style(c,'boxShadow')!=='none' && parseFloat(style(c,'borderTopLeftRadius'))>0;}}
+]});
+
+Q.push({id:16, title:"Navigation Bar",
+desc:`Create a horizontal navigation bar where links are spaced evenly — a common use of Flexbox.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q16 - Navigation Bar</title>
+<style>
+  nav {
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </nav>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q16 - Navigation Bar</title>
+<style>
+  nav {
+    display: flex;
+    justify-content: space-around;
+    background: #4f46e5;
+    padding: 10px;
+  }
+  nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </nav>
+</body>
+</html>`,
+tests:[
+  {desc:"Links display horizontally", fn:d=>{const n=$(d,'nav'); return !!n && style(n,'display')==='flex';}},
+  {desc:"Equal spacing between links", fn:d=>{const n=$(d,'nav'); return ['space-around','space-between','space-evenly'].includes(style(n,'justifyContent'));}}
+]});
+
+Q.push({id:17, title:"Vertical Alignment",
+desc:`Build a hero section where a message box is vertically centered inside the page — a common flexbox trick.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q17 - Vertical Centering</title>
+<style>
+  .container {
+    height: 300px;
+    background: #eee;
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">Welcome Message</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q17 - Vertical Centering</title>
+<style>
+  .container {
+    height: 300px;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .box {
+    background: #4f46e5;
+    color: white;
+    padding: 20px;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">Welcome Message</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"Box is vertically centered inside container", fn:d=>{const c=$(d,'.container'); return !!c && style(c,'display')==='flex' && style(c,'alignItems')==='center';}},
+  {desc:"Box stays centered regardless of container size", fn:d=>{const c=$(d,'.container'); return !!c && style(c,'justifyContent')==='center';}}
+]});
+
+Q.push({id:18, title:"Equal Columns",
+desc:`Create a 3-column layout where each column must take equal width, regardless of content size.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q18 - Equal Columns</title>
+<style>
+  .container {
+    /* Write your CSS here */
+  }
+  .box {
+    border: 1px solid #000;
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">Column 1</div>
+    <div class="box">Column 2</div>
+    <div class="box">Column 3</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q18 - Equal Columns</title>
+<style>
+  .container {
+    display: flex;
+  }
+  .container .box {
+    flex: 1;
+  }
+  .box {
+    border: 1px solid #000;
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">Column 1</div>
+    <div class="box">Column 2</div>
+    <div class="box">Column 3</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"All 3 boxes are equal width", fn:d=>{const b=$$(d,'.box'); if(b.length<3) return false; const w=b.map(x=>x.getBoundingClientRect().width); return Math.max(...w)-Math.min(...w)<2;}},
+  {desc:"Layout uses flexbox", fn:d=>{const c=$(d,'.container'); return !!c && style(c,'display')==='flex';}}
+]});
+
+Q.push({id:19, title:"Photo Grid",
+desc:`Design a photo gallery where images are arranged in a 2x2 grid layout.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q19 - Photo Grid</title>
+<style>
+  .gallery {
+    /* Write your CSS here */
+  }
+  .photo {
+    background: #4f46e5;
+    color: white;
+    display: grid;
+    place-items: center;
+    height: 100px;
+  }
+</style>
+</head>
+<body>
+  <div class="gallery">
+    <div class="photo">1</div>
+    <div class="photo">2</div>
+    <div class="photo">3</div>
+    <div class="photo">4</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q19 - Photo Grid</title>
+<style>
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .photo {
+    background: #4f46e5;
+    color: white;
+    display: grid;
+    place-items: center;
+    height: 100px;
+  }
+</style>
+</head>
+<body>
+  <div class="gallery">
+    <div class="photo">1</div>
+    <div class="photo">2</div>
+    <div class="photo">3</div>
+    <div class="photo">4</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"4 boxes arranged in a 2x2 grid", fn:d=>{const g=$(d,'.gallery'); return !!g && style(g,'display')==='grid' && style(g,'gridTemplateColumns').split(' ').length===2;}},
+  {desc:"Equal spacing between boxes", fn:d=>{const g=$(d,'.gallery'); return !!g && parseFloat(style(g,'gap'))>0;}}
+]});
+
+Q.push({id:20, title:"Responsive Stack",
+desc:`On a large screen, two content boxes should sit side by side, but on small screens (mobile) they should stack vertically.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q20 - Responsive Stack</title>
+<style>
+  .container {
+    display: grid;
+    /* Write default grid here */
+  }
+  .box {
+    background: #4f46e5;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">Box 1</div>
+    <div class="box">Box 2</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q20 - Responsive Stack</title>
+<style>
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 600px) {
+    .container {
+      grid-template-columns: 1fr;
+    }
+  }
+  .box {
+    background: #4f46e5;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">Box 1</div>
+    <div class="box">Box 2</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"Two columns on desktop", fn:async(d,ctx)=>{const f=await renderFrame(ctx.code,1200); const c=f.contentDocument.querySelector('.container'); const cols=c?getComputedStyle(c).gridTemplateColumns.split(' ').length:0; f.remove(); return cols===2;}},
+  {desc:"One column on mobile (≤600px)", fn:async(d,ctx)=>{const f=await renderFrame(ctx.code,375); const c=f.contentDocument.querySelector('.container'); const cols=c?getComputedStyle(c).gridTemplateColumns.split(' ').length:0; f.remove(); return cols===1;}}
+]});
+
+Q.push({id:21, title:"Gallery of Nine",
+desc:`Create a gallery of 9 images in a 3-column grid layout.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q21 - Gallery of Nine</title>
+<style>
+  .gallery {
+    /* Write your CSS here */
+  }
+  .item {
+    background: #4f46e5;
+    color: white;
+    height: 80px;
+    display: grid;
+    place-items: center;
+  }
+</style>
+</head>
+<body>
+  <div class="gallery">
+    <div class="item">1</div>
+    <div class="item">2</div>
+    <div class="item">3</div>
+    <div class="item">4</div>
+    <div class="item">5</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+    <div class="item">8</div>
+    <div class="item">9</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q21 - Gallery of Nine</title>
+<style>
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .item {
+    background: #4f46e5;
+    color: white;
+    height: 80px;
+    display: grid;
+    place-items: center;
+  }
+</style>
+</head>
+<body>
+  <div class="gallery">
+    <div class="item">1</div>
+    <div class="item">2</div>
+    <div class="item">3</div>
+    <div class="item">4</div>
+    <div class="item">5</div>
+    <div class="item">6</div>
+    <div class="item">7</div>
+    <div class="item">8</div>
+    <div class="item">9</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"3 equal columns", fn:d=>{const g=$(d,'.gallery'); return !!g && style(g,'display')==='grid' && style(g,'gridTemplateColumns').split(' ').length===3;}},
+  {desc:"Items arranged neatly with gaps", fn:d=>{const g=$(d,'.gallery'); return !!g && parseFloat(style(g,'gap'))>0;}}
+]});
+
+Q.push({id:22, title:"Corner Box",
+desc:`Design a dashboard widget. A small notification box must appear at the top-right corner of a larger container.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q22 - Corner Box</title>
+<style>
+  .container {
+    width: 400px;
+    height: 200px;
+    background: #eee;
+    position: relative;
+  }
+  .box {
+    width: 80px;
+    height: 40px;
+    background: #4f46e5;
+    color: white;
+    display: grid;
+    place-items: center;
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">Hi</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q22 - Corner Box</title>
+<style>
+  .container {
+    width: 400px;
+    height: 200px;
+    background: #eee;
+    position: relative;
+  }
+  .box {
+    width: 80px;
+    height: 40px;
+    background: #4f46e5;
+    color: white;
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">Hi</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"Box is positioned at the top-right corner", fn:d=>{const b=$(d,'.box'); return !!b && style(b,'position')==='absolute' && style(b,'top')!=='auto' && style(b,'right')!=='auto';}}
+]});
+
+Q.push({id:23, title:"Sticky Navbar",
+desc:`Build a blog with a navigation bar that stays at the top of the screen even when scrolling (sticky behavior).`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q23 - Sticky Navbar</title>
+<style>
+  nav {
+    background: #4f46e5;
+    color: white;
+    padding: 10px;
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <nav>My Sticky Navbar</nav>
+  <div style="height:1500px;">Scroll down...</div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q23 - Sticky Navbar</title>
+<style>
+  nav {
+    background: #4f46e5;
+    color: white;
+    padding: 10px;
+    position: sticky;
+    top: 0;
+  }
+</style>
+</head>
+<body>
+  <nav>My Sticky Navbar</nav>
+  <div style="height:1500px;">Scroll down...</div>
+</body>
+</html>`,
+tests:[
+  {desc:"Navbar sticks to the top when scrolling", fn:d=>{const n=$(d,'nav'); return !!n && style(n,'position')==='sticky';}},
+  {desc:"Top offset is set to 0", fn:d=>{const n=$(d,'nav'); return !!n && parseFloat(style(n,'top'))===0;}}
+]});
+
+Q.push({id:24, title:"Style Fight",
+desc:`Test CSS specificity rules. A paragraph has an element selector (blue), a class selector (green), and an ID selector (red). Which one wins?`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q24 - Style Fight</title>
+<style>
+  p { color: blue; }
+  .text { color: green; }
+  #unique { /* Write your CSS here */ }
+</style>
+</head>
+<body>
+  <p id="unique" class="text">This is styled text.</p>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q24 - Style Fight</title>
+<style>
+  p { color: blue; }
+  .text { color: green; }
+  #unique { color: red; }
+</style>
+</head>
+<body>
+  <p id="unique" class="text">This is styled text.</p>
+</body>
+</html>`,
+tests:[
+  {desc:"Paragraph text is red (ID beats class and element)", fn:d=>{const p=$(d,'p'); return !!p && isColorish(style(p,'color'),'red');}}
+]});
+
+Q.push({id:25, title:"Login Box",
+desc:`Create a login form for a website with a username field, a password field, and a login button — all inside a styled, centered box.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q25 - Login Box</title>
+<style>
+  .login {
+    width: 200px;
+    margin: auto;
+    margin-top: 100px;
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <form class="login">
+    <!-- Write your code here -->
+  </form>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q25 - Login Box</title>
+<style>
+  .login {
+    width: 200px;
+    margin: auto;
+    margin-top: 100px;
+    padding: 20px;
+    border: 1px solid gray;
+    border-radius: 8px;
+  }
+  .login input {
+    display: block;
+    margin: 10px 0;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+  <form class="login">
+    <input type="text" placeholder="Username"><br>
+    <input type="password" placeholder="Password"><br>
+    <button>Login</button>
+  </form>
+</body>
+</html>`,
+tests:[
+  {desc:"Form has username + password inputs", fn:d=>!!$(d,'input[type="password"]') && ($$(d,'input').length>=2)},
+  {desc:'Button labeled "Login"', fn:d=>{const b=$(d,'button'); return !!b && b.textContent.trim().toLowerCase().includes('login');}},
+  {desc:"Box has border and padding", fn:d=>{const l=$(d,'.login'); return !!l && style(l,'borderTopStyle')!=='none' && parseFloat(style(l,'paddingTop'))>0;}}
+]});
+
+Q.push({id:26, title:"Responsive Flex Columns",
+desc:`Build a 3-column layout that shrinks gracefully on smaller screens using flexbox wrapping.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q26 - Responsive Flex Columns</title>
+<style>
+  .container {
+    display: flex;
+    /* Write your CSS here */
+  }
+  .box {
+    background: #4f46e5;
+    color: white;
+    padding: 20px;
+    margin: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">1</div>
+    <div class="box">2</div>
+    <div class="box">3</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q26 - Responsive Flex Columns</title>
+<style>
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .box {
+    background: #4f46e5;
+    color: white;
+    padding: 20px;
+    margin: 10px;
+    flex: 1 1 30%;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">1</div>
+    <div class="box">2</div>
+    <div class="box">3</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"3 columns side by side on desktop", fn:d=>{const b=$$(d,'.box'); if(b.length<3) return false; const t=b.map(x=>x.getBoundingClientRect().top); return Math.max(...t)-Math.min(...t)<2;}},
+  {desc:"Boxes wrap into rows on smaller screens", fn:async(d,ctx)=>{const f=await renderFrame(ctx.code,320); const c=f.contentDocument.querySelector('.container'); const ok=!!c && getComputedStyle(c).flexWrap==='wrap'; f.remove(); return ok;}}
+]});
+
+Q.push({id:27, title:"Footer Bar",
+desc:`Build a website footer. It should span full width, have a dark background, and white centered text.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q27 - Footer Bar</title>
+<style>
+  footer {
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <footer>© 2025 My Website</footer>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q27 - Footer Bar</title>
+<style>
+  footer {
+    background: #222;
+    color: white;
+    text-align: center;
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+  <footer>© 2025 My Website</footer>
+</body>
+</html>`,
+tests:[
+  {desc:"Footer has a dark background", fn:d=>{const f=$(d,'footer'); if(!f) return false; const m=style(f,'backgroundColor').match(/\d+/g); return !!m && (+m[0]+ +m[1]+ +m[2])<300;}},
+  {desc:"Text is centered and white", fn:d=>{const f=$(d,'footer'); return !!f && style(f,'textAlign')==='center' && isColorish(style(f,'color'),'white');}}
+]});
+
+Q.push({id:28, title:"Hover Button",
+desc:`Create a button with a hover effect. On hover, its background should darken.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q28 - Hover Button</title>
+<style>
+  button {
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <button>Click Me</button>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q28 - Hover Button</title>
+<style>
+  button {
+    background: blue;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+  }
+  button:hover {
+    background: darkblue;
+  }
+</style>
+</head>
+<body>
+  <button>Click Me</button>
+</body>
+</html>`,
+tests:[
+  {desc:"Button has an initial background", fn:d=>{const b=$(d,'button'); return !!b && style(b,'backgroundColor')!=='rgba(0, 0, 0, 0)';}},
+  {desc:"A :hover rule darkens the background", fn:(d,ctx)=>/button\s*:\s*hover/.test(ctx.code)}
+]});
+
+Q.push({id:29, title:"Hero Section",
+desc:`Build a hero section for a landing page. It should use a background image, center the text inside, and have large white text.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q29 - Hero Section</title>
+<style>
+  .hero {
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <h1>Welcome to Our Website</h1>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q29 - Hero Section</title>
+<style>
+  .hero {
+    background: url('hero.jpg') no-repeat center/cover;
+    height: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 2em;
+  }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <h1>Welcome to Our Website</h1>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"Background image covers the whole hero area", fn:d=>{const h=$(d,'.hero'); return !!h && style(h,'backgroundImage')!=='none';}},
+  {desc:"Text is centered on both axes", fn:d=>{const h=$(d,'.hero'); return !!h && style(h,'display')==='flex' && style(h,'justifyContent')==='center' && style(h,'alignItems')==='center';}},
+  {desc:"Text color is white", fn:d=>{const h=$(d,'.hero'); return !!h && isColorish(style(h,'color'),'white');}}
+]});
+
+Q.push({id:30, title:"Responsive Cards",
+desc:`Make a card grid that adapts: 4 cards per row on desktop, 2 per row on tablet, 1 per row on mobile.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q30 - Responsive Cards</title>
+<style>
+  .cards {
+    /* Write your CSS here */
+  }
+  .card {
+    background: #4f46e5;
+    color: white;
+    height: 100px;
+    display: grid;
+    place-items: center;
+  }
+</style>
+</head>
+<body>
+  <div class="cards">
+    <div class="card">1</div>
+    <div class="card">2</div>
+    <div class="card">3</div>
+    <div class="card">4</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q30 - Responsive Cards</title>
+<style>
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 800px) {
+    .cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 500px) {
+    .cards {
+      grid-template-columns: 1fr;
+    }
+  }
+  .card {
+    background: #4f46e5;
+    color: white;
+    height: 100px;
+    display: grid;
+    place-items: center;
+  }
+</style>
+</head>
+<body>
+  <div class="cards">
+    <div class="card">1</div>
+    <div class="card">2</div>
+    <div class="card">3</div>
+    <div class="card">4</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"4 columns on desktop", fn:async(d,ctx)=>{const f=await renderFrame(ctx.code,1200); const c=f.contentDocument.querySelector('.cards'); const cols=c?getComputedStyle(c).gridTemplateColumns.split(' ').length:0; f.remove(); return cols===4;}},
+  {desc:"2 columns on tablet", fn:async(d,ctx)=>{const f=await renderFrame(ctx.code,700); const c=f.contentDocument.querySelector('.cards'); const cols=c?getComputedStyle(c).gridTemplateColumns.split(' ').length:0; f.remove(); return cols===2;}},
+  {desc:"1 column on mobile", fn:async(d,ctx)=>{const f=await renderFrame(ctx.code,375); const c=f.contentDocument.querySelector('.cards'); const cols=c?getComputedStyle(c).gridTemplateColumns.split(' ').length:0; f.remove(); return cols===1;}}
+]});
+
+Q.push({id:31, title:"Colored Boxes",
+desc:`Create three boxes of equal size arranged side by side with different background colors (red, green, blue).`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q31 - Colored Boxes</title>
+<style>
+  .container {
+    /* Write your CSS here */
+  }
+  .box {
+    flex: 1;
+    height: 100px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box" style="background:red;"></div>
+    <div class="box" style="background:green;"></div>
+    <div class="box" style="background:blue;"></div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q31 - Colored Boxes</title>
+<style>
+  .container {
+    display: flex;
+  }
+  .box {
+    flex: 1;
+    height: 100px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="box" style="background:red;"></div>
+    <div class="box" style="background:green;"></div>
+    <div class="box" style="background:blue;"></div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"Boxes are side by side", fn:d=>{const b=$$(d,'.box'); if(b.length<3) return false; const t=b.map(x=>x.getBoundingClientRect().top); return Math.max(...t)-Math.min(...t)<2;}},
+  {desc:"Each takes equal width", fn:d=>{const b=$$(d,'.box'); const w=b.map(x=>x.getBoundingClientRect().width); return w.length>=3 && Math.max(...w)-Math.min(...w)<2;}}
+]});
+
+Q.push({id:32, title:"Notification Badge",
+desc:`Create a bell icon with a red circular badge at its top-right corner showing "3" notifications.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q32 - Notification Badge</title>
+<style>
+  .icon {
+    position: relative;
+    font-size: 40px;
+  }
+  .badge {
+    /* Write your CSS here */
+  }
+</style>
+</head>
+<body>
+  <div class="icon">🔔
+    <span class="badge">3</span>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q32 - Notification Badge</title>
+<style>
+  .icon {
+    position: relative;
+    font-size: 40px;
+  }
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+  <div class="icon">🔔
+    <span class="badge">3</span>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"Badge is a small red circle", fn:d=>{const b=$(d,'.badge'); return !!b && style(b,'borderRadius')==='50%' && isColorish(style(b,'backgroundColor'),'red');}},
+  {desc:"Badge positioned at top-right of the bell", fn:d=>{const b=$(d,'.badge'); return !!b && style(b,'position')==='absolute' && style(b,'top')!=='auto' && style(b,'right')!=='auto';}}
+]});
+
+Q.push({id:33, title:"Equal Height Columns",
+desc:`Create 3 columns with different text lengths, but they must all have the same height using flexbox.`,
+code:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q33 - Equal Height Columns</title>
+<style>
+  .container {
+    /* Write your CSS here */
+  }
+  .col {
+    flex: 1;
+    border: 1px solid #000;
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="col">Short text</div>
+    <div class="col">This column has more text than the first one.</div>
+    <div class="col">This one has the longest text, but should still match height.</div>
+  </div>
+</body>
+</html>`,
+solution:`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Q33 - Equal Height Columns</title>
+<style>
+  .container {
+    display: flex;
+    align-items: stretch;
+  }
+  .col {
+    flex: 1;
+    border: 1px solid #000;
+    padding: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="col">Short text</div>
+    <div class="col">This column has more text than the first one.</div>
+    <div class="col">This one has the longest text, but should still match height.</div>
+  </div>
+</body>
+</html>`,
+tests:[
+  {desc:"All columns are the same height", fn:d=>{const c=$$(d,'.col'); if(c.length<3) return false; const h=c.map(x=>x.getBoundingClientRect().height); return Math.max(...h)-Math.min(...h)<2;}},
+  {desc:"Uses flexbox, not fixed heights", fn:d=>{const c=$(d,'.container'); return !!c && style(c,'display')==='flex';}}
+]});
+
+/* ============================= state ============================= */
+const answers = {};
+Q.forEach(q=> answers[q.id] = {code:q.code, attempted:false, results:null});
+
+let currentIndex = 0;
+let activeView = 'preview';
+
+const els = {
+  navstrip: document.getElementById('navstrip'),
+  qEyebrow: document.getElementById('qEyebrow'),
+  qNum: document.getElementById('qNum'),
+  qTitle: document.getElementById('qTitle'),
+  qDesc: document.getElementById('qDesc'),
+  testList: document.getElementById('testList'),
+  solutionBox: document.getElementById('solutionBox'),
+  solutionBtn: document.getElementById('solutionBtn'),
+  prevBtn: document.getElementById('prevBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  codeEditor: document.getElementById('codeEditor'),
+  previewFrame: document.getElementById('previewFrame'),
+  consoleView: document.getElementById('consoleView'),
+  runBtn: document.getElementById('runBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  scoreBadge: document.getElementById('scoreBadge'),
+  submitBtn: document.getElementById('submitBtn'),
+  restartBtn: document.getElementById('restartBtn'),
+  overlay: document.getElementById('overlay'),
+  overlayCard: document.getElementById('overlayCard'),
+  attemptedFlag: document.getElementById('attemptedFlag'),
+  fileTab: document.getElementById('fileTab'),
+};
+
+/* ============================= nav strip ============================= */
+function buildNavStrip(){
+  els.navstrip.innerHTML = '';
+  Q.forEach((q, i)=>{
+    const b = document.createElement('button');
+    b.className = 'navdot';
+    b.textContent = q.id;
+    b.dataset.idx = i;
+    b.addEventListener('click', ()=> goTo(i));
+    els.navstrip.appendChild(b);
+  });
+  refreshNavStrip();
+}
+function refreshNavStrip(){
+  const dots = Array.from(els.navstrip.children);
+  let solved = 0;
+  dots.forEach((dot, i)=>{
+    const a = answers[Q[i].id];
+    dot.classList.remove('attempted','passed','failed','current');
+    if(a.results){
+      const allPass = a.results.every(r=>r.passed);
+      dot.classList.add(allPass ? 'passed' : 'failed');
+      if(allPass) solved++;
+    } else if(a.attempted){
+      dot.classList.add('attempted');
+    }
+    if(i===currentIndex) dot.classList.add('current');
+  });
+  els.scoreBadge.textContent = `Solved ${solved} / ${Q.length}`;
+}
+
+/* ============================= rendering question ============================= */
+function loadQuestion(i){
+  currentIndex = i;
+  const q = Q[i];
+  const a = answers[q.id];
+  els.qEyebrow.textContent = `Question ${i+1} of ${Q.length}`;
+  els.qNum.textContent = `Q${q.id}`;
+  els.qTitle.textContent = ' — ' + q.title;
+  els.qDesc.textContent = q.desc;
+  els.codeEditor.value = a.code;
+  els.fileTab.textContent = `q${q.id}.html`;
+  els.solutionBox.classList.remove('show');
+  els.solutionBox.innerHTML = '';
+  els.solutionBtn.textContent = 'Show solution';
+  els.prevBtn.disabled = i===0;
+  els.nextBtn.disabled = i===Q.length-1;
+  renderTestList(q, a.results);
+  updateAttemptedFlag(a);
+  updatePreview();
+  renderConsole(a.results, q);
+  refreshNavStrip();
+}
+
+function updateAttemptedFlag(a){
+  els.attemptedFlag.textContent = a.attempted ? 'edited' : 'unedited';
+}
+
+function renderTestList(q, results){
+  els.testList.innerHTML = '';
+  q.tests.forEach((t, idx)=>{
+    const li = document.createElement('li');
+    let markChar = '○', cls='';
+    if(results){
+      const r = results[idx];
+      if(r.passed){ markChar='✓'; cls='pass'; } else { markChar='✕'; cls='fail'; }
+    }
+    li.className = cls;
+    li.innerHTML = `<span class="mark">${markChar}</span><span>${t.desc}</span>`;
+    els.testList.appendChild(li);
+  });
+}
+
+function renderConsole(results, q){
+  if(!results){
+    els.consoleView.innerHTML = `<div class="line prompt">$ waiting to run tests for Q${q.id}…</div><div class="line">Click "Run tests" to check your code.</div>`;
+    return;
+  }
+  let out = `<div class="line prompt">$ running test suite for Q${q.id}</div>`;
+  results.forEach(r=>{
+    out += `<div class="line ${r.passed?'ok':'no'}">[${r.passed?'PASS':'FAIL'}] ${r.desc}</div>`;
+  });
+  const passed = results.filter(r=>r.passed).length;
+  out += `<div class="line prompt">$ ${passed}/${results.length} checks passed</div>`;
+  els.consoleView.innerHTML = out;
+  els.consoleView.scrollTop = els.consoleView.scrollHeight;
+}
+
+/* ============================= preview ============================= */
+let previewTimer = null;
+function updatePreview(){
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(()=>{
+    const q = Q[currentIndex];
+    const a = answers[q.id];
+    els.previewFrame.srcdoc = a.code;
+  }, 300);
+}
+
+/* ============================= editor ============================= */
+els.codeEditor.addEventListener('input', ()=>{
+  const q = Q[currentIndex];
+  const a = answers[q.id];
+  a.code = els.codeEditor.value;
+  a.attempted = (a.code !== q.code);
+  a.results = null;
+  updateAttemptedFlag(a);
+  updatePreview();
+  renderTestList(q, null);
+  renderConsole(null, q);
+  refreshNavStrip();
+});
+
+els.codeEditor.addEventListener('keydown', (e)=>{
+  if(e.key === 'Tab'){
+    e.preventDefault();
+    const t = e.target;
+    const start = t.selectionStart, end = t.selectionEnd;
+    t.value = t.value.slice(0,start) + '  ' + t.value.slice(end);
+    t.selectionStart = t.selectionEnd = start + 2;
+    t.dispatchEvent(new Event('input'));
+  }
+});
+
+/* bottom tabs (Preview/Console) */
+document.querySelectorAll('.tab[data-view]').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab[data-view]').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    activeView = tab.dataset.view;
+    els.previewFrame.style.display = activeView==='preview' ? 'block' : 'none';
+    els.consoleView.style.display = activeView==='console' ? 'block' : 'none';
+  });
+});
+
+/* ============================= run tests ============================= */
+async function runChecksForQuestion(q, code){
+  const frame = await renderFrame(code, 1000);
+  const doc = frame.contentDocument;
+  const ctx = {code};
+  const results = [];
+  for(const t of q.tests){
+    let passed = false;
+    try{ passed = await t.fn(doc, ctx); } catch(e){ passed = false; }
+    results.push({desc:t.desc, passed: !!passed});
+  }
+  frame.remove();
+  return results;
+}
+
+els.runBtn.addEventListener('click', async ()=>{
+  const q = Q[currentIndex];
+  const a = answers[q.id];
+  els.runBtn.disabled = true;
+  els.runBtn.textContent = 'Running…';
+  document.querySelectorAll('.tab[data-view]').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.tab[data-view="console"]').classList.add('active');
+  activeView = 'console';
+  els.previewFrame.style.display = 'none';
+  els.consoleView.style.display = 'block';
+  const results = await runChecksForQuestion(q, a.code);
+  a.results = results;
+  a.attempted = true;
+  renderTestList(q, results);
+  renderConsole(results, q);
+  refreshNavStrip();
+  updateAttemptedFlag(a);
+  els.runBtn.disabled = false;
+  els.runBtn.textContent = 'Run tests';
+});
+
+els.resetBtn.addEventListener('click', ()=>{
+  const q = Q[currentIndex];
+  const a = answers[q.id];
+  a.code = q.code; a.attempted = false; a.results = null;
+  loadQuestion(currentIndex);
+});
+
+els.solutionBtn.addEventListener('click', ()=>{
+  const q = Q[currentIndex];
+  const showing = els.solutionBox.classList.toggle('show');
+  els.solutionBtn.textContent = showing ? 'Hide solution' : 'Show solution';
+  if(showing){
+    els.solutionBox.textContent = q.solution;
+  }
+});
+
+els.prevBtn.addEventListener('click', ()=>{ if(currentIndex>0) goTo(currentIndex-1); });
+els.nextBtn.addEventListener('click', ()=>{ if(currentIndex<Q.length-1) goTo(currentIndex+1); });
+function goTo(i){ loadQuestion(i); }
+
+/* ============================= restart ============================= */
+els.restartBtn.addEventListener('click', ()=>{
+  if(!confirm('Restart the whole test? This clears all your answers.')) return;
+  Q.forEach(q=> answers[q.id] = {code:q.code, attempted:false, results:null});
+  loadQuestion(0);
+});
+
+/* ============================= submit / grade all ============================= */
+els.submitBtn.addEventListener('click', async ()=>{
+  els.overlay.classList.add('show');
+  els.overlayCard.innerHTML = `<div class="grading-msg" id="gradingMsg">Grading question 1 of ${Q.length}…</div>`;
+  const msg = document.getElementById('gradingMsg');
+
+  let totalChecks = 0, passedChecks = 0, solvedCount = 0;
+  const perQ = [];
+
+  for(let i=0;i<Q.length;i++){
+    const q = Q[i];
+    const a = answers[q.id];
+    msg.textContent = `Grading question ${i+1} of ${Q.length}…`;
+    const results = await runChecksForQuestion(q, a.code);
+    a.results = results;
+    const allPass = results.every(r=>r.passed);
+    if(allPass) solvedCount++;
+    totalChecks += results.length;
+    passedChecks += results.filter(r=>r.passed).length;
+    perQ.push({id:q.id, allPass});
+  }
+  refreshNavStrip();
+  renderTestList(Q[currentIndex], answers[Q[currentIndex].id].results);
+  renderConsole(answers[Q[currentIndex].id].results, Q[currentIndex]);
+
+  const breakdownHtml = perQ.map(p=>`<div class="${p.allPass?'p':'f'}">Q${p.id}</div>`).join('');
+  els.overlayCard.innerHTML = `
+    <h2>Test submitted</h2>
+    <div class="subtle">Here's how you did across all ${Q.length} questions.</div>
+    <div class="bigscore">${solvedCount} / ${Q.length}</div>
+    <div class="subtle">questions fully solved &nbsp;·&nbsp; ${passedChecks} / ${totalChecks} individual checks passed</div>
+    <div class="breakdown">${breakdownHtml}</div>
+    <div class="actions">
+      <button class="btn" id="closeOverlay">Review answers</button>
+    </div>
+  `;
+  document.getElementById('closeOverlay').addEventListener('click', ()=>{
+    els.overlay.classList.remove('show');
+  });
+});
+
+/* ============================= init ============================= */
+buildNavStrip();
+loadQuestion(0);
+
+})();
+</script>
+</body>
+</html>
